@@ -3,25 +3,31 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.IO;
+using TMPro;
 
 public class MainManager : MonoBehaviour
 {
+    public static MainManager Instance;
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
-
+    [SerializeField] public Text highScoreText;
     public Text ScoreText;
     public GameObject GameOverText;
-    
     private bool m_Started = false;
     private int m_Points;
     
     private bool m_GameOver = false;
 
-    
+
     // Start is called before the first frame update
     void Start()
     {
+        m_GameOver = false;
+        highScoreText.text = "High Score: " + MainGameManager.Instance.highScoreName 
+            + " : " + MainGameManager.Instance.highScore;
+        ScoreText.text = MainGameManager.Instance.playerName + " Score: " + m_Points;
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -65,11 +71,19 @@ public class MainManager : MonoBehaviour
     void AddPoint(int point)
     {
         m_Points += point;
-        ScoreText.text = $"Score : {m_Points}";
+        ScoreText.text = MainGameManager.Instance.playerName + " Score: " + m_Points;
     }
 
     public void GameOver()
     {
+        if (m_Points > MainGameManager.Instance.highScore)
+        {
+            MainGameManager.Instance.highScore = m_Points;
+            MainGameManager.Instance.highScoreName = MainGameManager.Instance.playerName;
+            highScoreText.text = "High Score: " + MainGameManager.Instance.highScoreName 
+            + " : " + MainGameManager.Instance.highScore;
+        }
+        MainGameManager.Instance.SaveHighScore();
         m_GameOver = true;
         GameOverText.SetActive(true);
     }
